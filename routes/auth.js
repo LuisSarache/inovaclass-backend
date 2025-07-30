@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('../controllers/userController');
+const { login } = require('../controllers/authController');
 
-// Rota POST para login
-router.post('/login', userController.login);
+router.post('/login', login);
 
 module.exports = router;
