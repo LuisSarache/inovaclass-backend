@@ -1,22 +1,36 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
+const session = require('express-session');
+const sequelize = require('./config/database');
 require('dotenv').config();
 
+// Rotas
 const authRoutes = require('./routes/auth');
+const chatRoutes = require('./routes/chat');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-app.use('/api', authRoutes);
+// Configuração da sessão
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'uma-chave-secreta',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // true se usar HTTPS
+}));
 
-mongoose.connect(process.env.MONGO_URI)
+// Rotas
+app.use('/api', authRoutes);
+app.use('/api', chatRoutes);
+
+// Conectar ao banco SQL
+sequelize.authenticate()
   .then(() => {
-    console.log('Conectado ao MongoDB');
-    app.listen(process.env.PORT, () => {
-      console.log(`Servidor rodando na porta ${process.env.PORT}`);
+    console.log('Conectado ao banco SQL via Sequelize');
+    app.listen(process.env.PORT || 3000, () => {
+      console.log(`Servidor rodando na porta ${process.env.PORT || 3000}`);
     });
   })
   .catch(err => console.error('Erro ao conectar no banco:', err));
