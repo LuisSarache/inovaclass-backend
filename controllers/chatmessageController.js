@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const ChatMessage = require('../models/chatMessage');
+const ChatMessage = require('../models/chatmessageModel');
 
 exports.sendMessage = async (req, res) => {
   try {
@@ -14,7 +14,7 @@ exports.sendMessage = async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.HF_TOKEN}`,
+        "Authorization": `Bearer ${process.env.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}`,
       },
       body: JSON.stringify({
         model: "moonshotai/Kimi-K2-Instruct",
