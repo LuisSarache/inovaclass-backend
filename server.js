@@ -10,7 +10,7 @@ const session = require('express-session');
 // Rotas
 const authRoutes = require('./routes/auth');
 const chatRoutes = require('./routes/chat');
-
+const userRoutes = require('./routes/users');
 const app = express();
 
 app.use(session({
@@ -30,9 +30,9 @@ app.use(express.json());
 
 
 // Rotas
-app.use('/api', authRoutes);
-app.use('/api', chatRoutes);
-
+app.use('/api/auth', authRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/users', userRoutes);
 // Conectar ao banco SQL
 sequelize.authenticate()
   .then(() => {
