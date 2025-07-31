@@ -1,6 +1,3 @@
-
-  
-
 const fetch = require('node-fetch');
 const ChatMessage = require('../models/chatmessageModel');
 
@@ -12,8 +9,6 @@ exports.sendMessage = async (req, res) => {
     if (!message) {
       return res.status(400).json({ message: 'Mensagem é obrigatória.' });
     }
-
-    const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
     const response = await fetch("https://router.huggingface.co/v1/chat/completions", {
       method: "POST",
@@ -30,12 +25,14 @@ exports.sendMessage = async (req, res) => {
     });
 
     const data = await response.json();
+    console.log('Resposta da API:', data);
 
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+    // Ajuste aqui para pegar o reply conforme a estrutura do Hugging Face
+    const reply = data.generated_text || (Array.isArray(data) && data[0]?.generated_text);
+
+    if (!reply) {
       return res.status(500).json({ message: 'Resposta inválida da API de chat.' });
     }
-
-    const reply = data.choices[0].message.content;
 
     await ChatMessage.create({
       userId,
