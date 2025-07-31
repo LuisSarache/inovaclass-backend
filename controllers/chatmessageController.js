@@ -1,3 +1,6 @@
+
+  
+
 const fetch = require('node-fetch');
 const ChatMessage = require('../models/chatmessageModel');
 
@@ -9,6 +12,8 @@ exports.sendMessage = async (req, res) => {
     if (!message) {
       return res.status(400).json({ message: 'Mensagem é obrigatória.' });
     }
+
+    const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
     const response = await fetch("https://router.huggingface.co/v1/chat/completions", {
       method: "POST",

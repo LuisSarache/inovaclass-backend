@@ -3,11 +3,27 @@ const cors = require('cors');
 const sequelize = require('./config/database');
 require('dotenv').config();
 
+const session = require('express-session');
+
+
+
 // Rotas
 const authRoutes = require('./routes/auth');
 const chatRoutes = require('./routes/chat');
 
 const app = express();
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'uma-chave-secreta',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    secure: false, // se estiver em produção com HTTPS, use true
+    maxAge: 1000 * 60 * 60 * 1, // 1 hora
+  },
+}));
+
+
 
 app.use(cors());
 app.use(express.json());
