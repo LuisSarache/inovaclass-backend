@@ -29,4 +29,4 @@ const ChatMessage = sequelize.define('ChatMessage', {
   timestamps: false,
 });
 
-module.exports = { ChatMessage };
+module.exports = ChatMessage;
