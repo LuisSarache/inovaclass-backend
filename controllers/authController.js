@@ -1,39 +1,62 @@
+const bcrypt = require('bcrypt');
 const userModel = require('../models/userModel');
 
-// Login (usando apenas CPF)
-const login = (req, res) => {
-  const { cpf } = req.body;
+const register = (req, res) => {
+  const { cpf, password, tipo } = req.body;
 
-  if (!cpf) {
-    return res.status(400).json({ message: 'Preencha o CPF' });
+  if (!cpf || !password || !tipo) {
+    return res.status(400).json({ message: 'Preencha CPF, senha e tipo de usuário' });
   }
 
-  userModel.findUserByCpf(cpf, (err, results) => {
-    if (err) return res.status(500).json({ message: 'Erro no servidor' });
+  userModel.findUserByCpf(cpf, async (err, results) => {
+    if (err) return res.status(500).json({ message: 'Erro no servidor ao buscar CPF' });
+
+    if (results.length > 0) {
+      return res.status(400).json({ message: 'Usuário já registrado com este CPF' });
+    }
+
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      userModel.createUser({ cpf, password: hashedPassword, tipo }, (err, result) => {
+        if (err) {
+          return res.status(500).json({ message: 'Erro ao registrar usuário' });
+        }
+        res.status(201).json({ message: 'Usuário registrado com sucesso!' });
+      });
+    } catch (hashErr) {
+      res.status(500).json({ message: 'Erro ao criptografar senha' });
+    }
+  });
+};
+
+const login = (req, res) => {
+  const { cpf, password } = req.body;
+
+  if (!cpf || !password) {
+    return res.status(400).json({ message: 'Preencha CPF e senha' });
+  }
+
+  userModel.findUserByCpf(cpf, async (err, results) => {
+    if (err) return res.status(500).json({ message: 'Erro no servidor ao buscar usuário' });
 
     if (results.length === 0) {
-      return res.status(401).json({ message: 'CPF não encontrado' });
+      return res.status(400).json({ message: 'Usuário não encontrado' });
     }
 
     const user = results[0];
 
-    // Salva dados na sessão
-    req.session.userId = user.id;
-    req.session.cpf = user.cpf;
-    req.session.tipo = user.tipo;
-
-    res.status(200).json({ message: 'Login efetuado com sucesso!', userId: user.id });
-  });
-};
-
-// Logout
-const logout = (req, res) => {
-  req.session.destroy(err => {
-    if (err) {
-      return res.status(500).json({ message: 'Erro ao deslogar' });
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(400).json({ message: 'Senha incorreta' });
     }
-    res.json({ message: 'Logout realizado com sucesso' });
+
+    res.status(200).json({ message: 'Login realizado com sucesso!' });
   });
 };
 
-module.exports = { login, logout };
+const logout = (req, res) => {
+  res.status(200).json({ message: 'Logout realizado com sucesso!' });
+};
+
+module.exports = { register, login, logout };

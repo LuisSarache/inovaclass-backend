@@ -16,6 +16,10 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   tipo: {
     type: DataTypes.ENUM('aluno', 'docente'),
     allowNull: false,
@@ -23,26 +27,17 @@ const User = sequelize.define('User', {
 }, {
   tableName: 'users',
   timestamps: false,
+
+createUser: async (cpf, tipo, password, callback) => {
+  try {
+    const user = await User.create({ cpf, tipo, password });
+    callback(null, user);
+  } catch (error) {
+    callback(error);
+  }
+},
+
+
 });
 
 User.sync();
-
-module.exports = {
-  createUser: async (cpf, nome, tipo, callback) => {
-    try {
-      const user = await User.create({ cpf, nome, tipo });
-      callback(null, user);
-    } catch (error) {
-      callback(error);
-    }
-  },
-
-  findUserByCpf: async (cpf, callback) => {
-    try {
-      const user = await User.findOne({ where: { cpf } });
-      callback(null, user ? [user] : []);
-    } catch (error) {
-      callback(error);
-    }
-  }
-};
