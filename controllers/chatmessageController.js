@@ -6,6 +6,16 @@ if (!process.env.HF_API_TOKEN) {
   throw new Error("Variável HF_API_TOKEN não está definida. Verifique seu .env.");
 }
 
+(async () => {
+  try {
+    await sequelize.sync({ alter: true });
+    console.log("Banco atualizado com sucesso!");
+    // aí você inicia seu servidor depois
+  } catch (error) {
+    console.error("Erro ao atualizar banco:", error);
+  }
+})();
+
 exports.sendMessage = async (req, res) => {
   try {
     const { message } = req.body;
