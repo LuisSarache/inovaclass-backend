@@ -21,7 +21,7 @@ exports.sendMessage = async (req, res) => {
         model: "moonshotai/Kimi-K2-Instruct",
         messages: [
           { role: "user", content: message },
-          console.log("status da resposta:", response.status);
+          console.log("status da resposta:", response.status)
 
         ],
       }),
