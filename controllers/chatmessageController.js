@@ -11,6 +11,7 @@ exports.sendMessage = async (req, res) => {
     }
 
     const response = await fetch("https://router.huggingface.co/v1/chat/completions", {
+
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -20,12 +21,23 @@ exports.sendMessage = async (req, res) => {
         model: "moonshotai/Kimi-K2-Instruct",
         messages: [
           { role: "user", content: message },
+          console.log("Status da resposta:", response.status);
+
         ],
       }),
     });
 
-    const data = await response.json();
-    console.log('Resposta da API:', data);
+    const text = await response.text(); // pega como texto cru
+console.log("Texto cru da API Hugging Face:", text);
+
+let data;
+try {
+  data = JSON.parse(text);
+} catch (parseError) {
+  console.error("Erro ao fazer parse do JSON:", parseError);
+  return res.status(500).json({ message: "Resposta inválida da API (JSON inválido)" });
+}
+
 
     const reply = data?.choices?.[0]?.message?.content;
 
