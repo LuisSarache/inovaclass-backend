@@ -22,12 +22,11 @@ const ChatMessage = sequelize.define('ChatMessage', {
   data_envio: {
     type: DataTypes.DATE,
     allowNull: false,
+    defaultValue: Sequelize.NOW
   },
 }, {
   tableName: 'chat_messages',
   timestamps: false,
 });
-
-ChatMessage.sync();
 
 module.exports = { ChatMessage };

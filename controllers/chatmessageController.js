@@ -4,7 +4,7 @@ const ChatMessage = require('../models/chatmessageModel');
 exports.sendMessage = async (req, res) => {
   try {
     const { message } = req.body;
-    const userId = req.session.userId;
+    const userId = req.session?.userId || 0; // Se ainda não tiver login, evitar erro
 
     if (!message) {
       return res.status(400).json({ message: 'Mensagem é obrigatória.' });
@@ -27,8 +27,7 @@ exports.sendMessage = async (req, res) => {
     const data = await response.json();
     console.log('Resposta da API:', data);
 
-    // Ajuste aqui para pegar o reply conforme a estrutura do Hugging Face
-    const reply = data.generated_text || (Array.isArray(data) && data[0]?.generated_text);
+    const reply = data?.choices?.[0]?.message?.content;
 
     if (!reply) {
       return res.status(500).json({ message: 'Resposta inválida da API de chat.' });
