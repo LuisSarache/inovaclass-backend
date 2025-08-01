@@ -29,26 +29,14 @@ const User = sequelize.define('User', {
   timestamps: false,
 });
 
-// ⚠️ Adicionando as funções fora do define
-const createUser = async ({ cpf, password, tipo }, callback) => {
-  try {
-    const user = await User.create({ cpf, password, tipo });
-    callback(null, user);
-  } catch (error) {
-    callback(error);
-  }
+// 🔄 Apenas retorna as Promises, sem usar callback
+const createUser = ({ cpf, password, tipo }) => {
+  return User.create({ cpf, password, tipo });
 };
 
-const findUserByCpf = async (cpf, callback) => {
-  try {
-    const users = await User.findAll({ where: { cpf } });
-    callback(null, users);
-  } catch (error) {
-    callback(error);
-  }
+const findUserByCpf = (cpf) => {
+  return User.findAll({ where: { cpf } });
 };
-
-User.sync();
 
 module.exports = {
   User,

@@ -1,66 +1,60 @@
 const bcrypt = require('bcrypt');
 const { createUser, findUserByCpf } = require('../models/userModel');
 
-const register = (req, res) => {
+const register = async (req, res) => {
   const { cpf, password, tipo } = req.body;
 
   if (!cpf || !password || !tipo) {
     return res.status(400).json({ message: 'Preencha CPF, senha e tipo de usuário' });
   }
 
-  findUserByCpf(cpf, async (err, results) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erro no servidor ao buscar CPF', error: err.message });
-    }
+  try {
+    const users = await findUserByCpf(cpf);
 
-    if (results.length > 0) {
+    if (users.length > 0) {
       return res.status(400).json({ message: 'Usuário já registrado com este CPF' });
     }
 
-    try {
-      const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await createUser({ cpf, password: hashedPassword, tipo });
 
-      createUser({ cpf, password: hashedPassword, tipo }, (err, result) => {
-        if (err) {
-          return res.status(500).json({ message: 'Erro ao registrar usuário', error: err.message });
-        }
-        res.status(201).json({ message: 'Usuário registrado com sucesso!' });
-      });
-    } catch (hashErr) {
-      res.status(500).json({ message: 'Erro ao criptografar senha', error: hashErr.message });
-    }
-  });
+    res.status(201).json({ message: 'Usuário registrado com sucesso!' });
+  } catch (err) {
+    console.error("Erro no registro:", err);
+    res.status(500).json({ message: 'Erro ao registrar usuário', error: err.message });
+  }
 };
 
-const login = (req, res) => {
+const login = async (req, res) => {
   const { cpf, password } = req.body;
 
   if (!cpf || !password) {
     return res.status(400).json({ message: 'Preencha CPF e senha' });
   }
 
-  findUserByCpf(cpf, async (err, results) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erro no servidor ao buscar usuário', error: err.message });
-    }
+  try {
+    const users = await findUserByCpf(cpf);
 
-    if (results.length === 0) {
+    if (users.length === 0) {
       return res.status(400).json({ message: 'Usuário não encontrado' });
     }
 
-    const user = results[0];
-
+    const user = users[0];
     const match = await bcrypt.compare(password, user.password);
+
     if (!match) {
       return res.status(400).json({ message: 'Senha incorreta' });
     }
 
-    res.status(200).json({ message: 'Login realizado com sucesso!' });
-  });
+    // Aqui você pode gerar token ou sessão, se quiser
+    res.status(200).json({ message: 'Login realizado com sucesso!', tipo: user.tipo });
+  } catch (err) {
+    console.error("Erro no login:", err);
+    res.status(500).json({ message: 'Erro no servidor', error: err.message });
+  }
 };
 
 const logout = (req, res) => {
-  // Se estiver usando sessões:
   if (req.session) {
     req.session.destroy(() => {
       res.status(200).json({ message: 'Logout realizado com sucesso!' });
