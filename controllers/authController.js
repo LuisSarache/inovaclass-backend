@@ -1,7 +1,6 @@
 const bcrypt = require('bcrypt');
-const userModel = require('../models/userModel');
+const { createUser, findUserByCpf } = require('../models/userModel');
 
-// Registrar novo usuário
 const register = (req, res) => {
   const { cpf, password, tipo } = req.body;
 
@@ -9,30 +8,30 @@ const register = (req, res) => {
     return res.status(400).json({ message: 'Preencha CPF, senha e tipo de usuário' });
   }
 
-  userModel.findUserByCpf(cpf, (err, results) => {
-    if (err) return res.status(500).json({ message: 'Erro no servidor ao buscar CPF' });
+  findUserByCpf(cpf, async (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: 'Erro no servidor ao buscar CPF', error: err.message });
+    }
 
     if (results.length > 0) {
       return res.status(400).json({ message: 'Usuário já registrado com este CPF' });
     }
 
-    // Mover o async para fora do callback
-    bcrypt.hash(password, 10)
-      .then((hashedPassword) => {
-        userModel.createUser({ cpf, password: hashedPassword, tipo }, (err, result) => {
-          if (err) {
-            return res.status(500).json({ message: 'Erro ao registrar usuário' });
-          }
-          res.status(201).json({ message: 'Usuário registrado com sucesso!' });
-        });
-      })
-      .catch((err) => {
-        res.status(500).json({ message: 'Erro ao criptografar senha' });
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      createUser({ cpf, password: hashedPassword, tipo }, (err, result) => {
+        if (err) {
+          return res.status(500).json({ message: 'Erro ao registrar usuário', error: err.message });
+        }
+        res.status(201).json({ message: 'Usuário registrado com sucesso!' });
       });
+    } catch (hashErr) {
+      res.status(500).json({ message: 'Erro ao criptografar senha', error: hashErr.message });
+    }
   });
 };
 
-// Login de usuário
 const login = (req, res) => {
   const { cpf, password } = req.body;
 
@@ -40,8 +39,10 @@ const login = (req, res) => {
     return res.status(400).json({ message: 'Preencha CPF e senha' });
   }
 
-  userModel.findUserByCpf(cpf, (err, results) => {
-    if (err) return res.status(500).json({ message: 'Erro no servidor ao buscar usuário' });
+  findUserByCpf(cpf, async (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: 'Erro no servidor ao buscar usuário', error: err.message });
+    }
 
     if (results.length === 0) {
       return res.status(400).json({ message: 'Usuário não encontrado' });
@@ -49,22 +50,24 @@ const login = (req, res) => {
 
     const user = results[0];
 
-    bcrypt.compare(password, user.password)
-      .then((match) => {
-        if (!match) {
-          return res.status(400).json({ message: 'Senha incorreta' });
-        }
-        res.status(200).json({ message: 'Login realizado com sucesso!' });
-      })
-      .catch((err) => {
-        res.status(500).json({ message: 'Erro ao verificar senha' });
-      });
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(400).json({ message: 'Senha incorreta' });
+    }
+
+    res.status(200).json({ message: 'Login realizado com sucesso!' });
   });
 };
 
-// Logout de usuário
 const logout = (req, res) => {
-  res.status(200).json({ message: 'Logout realizado com sucesso!' });
+  // Se estiver usando sessões:
+  if (req.session) {
+    req.session.destroy(() => {
+      res.status(200).json({ message: 'Logout realizado com sucesso!' });
+    });
+  } else {
+    res.status(200).json({ message: 'Logout realizado com sucesso!' });
+  }
 };
 
 module.exports = { register, login, logout };
