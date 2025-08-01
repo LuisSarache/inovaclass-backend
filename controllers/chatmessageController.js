@@ -1,15 +1,10 @@
 require('dotenv').config();
-const { OpenAI } = require('openai');
-const { ChatMessage } = require('../models/chatmessageModel'); // Corrigido: desestruturando corretamente
+const axios = require('axios');
+const { ChatMessage } = require('../models/chatmessageModel');
 
 if (!process.env.HF_API_TOKEN) {
   throw new Error("Variável HF_API_TOKEN não está definida. Verifique seu .env.");
 }
-
-const client = new OpenAI({
-  baseURL: "https://router.huggingface.co/v1",
-  apiKey: process.env.HF_API_TOKEN,
-});
 
 exports.sendMessage = async (req, res) => {
   try {
@@ -20,22 +15,35 @@ exports.sendMessage = async (req, res) => {
       return res.status(400).json({ message: 'Mensagem é obrigatória.' });
     }
 
-    const chatCompletion = await client.chat.completions.create({
-      model: "zai-org/GLM-4.5:novita",
-      messages: [{ role: "user", content: message }],
-    });
+    // Faz a requisição POST para a API Hugging Face
+    const response = await axios.post(
+      'https://router.huggingface.co/v1/chat/completions',
+      {
+        model: "zai-org/GLM-4.5:novita",
+        messages: [{ role: "user", content: message }],
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        timeout: 30000, // opcional: timeout de 30s
+      }
+    );
 
-    const reply = chatCompletion.choices?.[0]?.message?.content;
+    // Extrai a resposta do modelo
+    const reply = response.data.choices?.[0]?.message?.content;
 
     if (!reply) {
       return res.status(500).json({ message: 'Resposta inválida da API de chat.' });
     }
 
+    // Salva no banco
     await ChatMessage.create({
-      remetente_id: userId || 1, // fallback para ID 1 se não houver sessão
-      destinatario_id: 0, // ID fixo do "bot"
+      remetente_id: userId || 1,
+      destinatario_id: 0,
       conteudo: message,
-      resposta: reply, // Adicione esse campo ao seu model!
+      resposta: reply,
     });
 
     return res.json({ reply });
