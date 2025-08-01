@@ -5,7 +5,6 @@ require('dotenv').config();
 const session = require('express-session');
 
 const authRoutes = require('./routes/auth');
-const chatRoutes = require('./routes/chat');
 const userRoutes = require('./routes/users');
 
 const app = express();
@@ -16,7 +15,7 @@ app.use(cors({
 }));
 
 app.use(express.json());
-
+/*
 app.use(session({
   secret: process.env.SESSION_SECRET || 'uma-chave-secreta',
   resave: false,
@@ -26,9 +25,8 @@ app.use(session({
     maxAge: 1000 * 60 * 60 * 1,
   },
 }));
-
+*/
 app.use('/api/auth', authRoutes);
-app.use('/api/chat', chatRoutes);
 app.use('/api/users', userRoutes);
 
 // Middleware para capturar erros e logar no console
