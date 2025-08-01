@@ -31,6 +31,13 @@ app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/users', userRoutes);
 
+// Middleware para capturar erros e logar no console
+app.use((err, req, res, next) => {
+  console.error('Erro interno capturado:', err);
+  res.status(500).json({ message: 'Erro interno no servidor', error: err.message });
+});
+
+
 sequelize.authenticate()
   .then(() => {
     const PORT = process.env.PORT || 5000;
