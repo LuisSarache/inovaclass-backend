@@ -21,7 +21,7 @@ const User = sequelize.define('User', {
     allowNull: false,
   },
   tipo: {
-    type: DataTypes.ENUM('aluno', 'docente'),
+    type: DataTypes.ENUM('aluno', 'professor'),
     allowNull: false,
   }
 }, {
@@ -29,25 +29,13 @@ const User = sequelize.define('User', {
   timestamps: false,
 });
 
-// 🔄 Apenas retorna as Promises, sem usar callback
 const createUser = async ({ cpf, password, tipo }) => {
-  try {
-    const user = await User.create({ cpf, password, tipo });
-    return user;
-  } catch (error) {
-    throw error;
-  }
+  return await User.create({ cpf, password, tipo });
 };
 
 const findUserByCpf = async (cpf) => {
-  try {
-    const users = await User.findAll({ where: { cpf } });
-    return users;
-  } catch (error) {
-    throw error;
-  }
+  return await User.findAll({ where: { cpf } });
 };
-
 
 module.exports = {
   User,

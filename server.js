@@ -38,12 +38,18 @@ app.use((err, req, res, next) => {
 
 sequelize.authenticate()
   .then(() => {
-    const PORT = process.env.PORT || 5000;
     console.log('Conectado ao banco SQL via Sequelize');
+
+    // Cria as tabelas se não existirem
+    return sequelize.sync({ alter: true }); // use { force: true } para recriar sempre (com cuidado)
+  })
+  .then(() => {
+    const PORT = process.env.PORT || 5000;
+    console.log('Tabelas sincronizadas com o banco');
+
     app.listen(PORT, () => {
       console.log(`Servidor rodando na porta ${PORT}`);
     });
   })
   .catch(err => console.error('Erro ao conectar no banco:', err));
-
   

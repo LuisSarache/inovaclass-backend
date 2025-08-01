@@ -1,66 +1,71 @@
 const bcrypt = require('bcrypt');
 const { createUser, findUserByCpf } = require('../models/userModel');
 
+// Registro de usuário
 const register = async (req, res) => {
   const { cpf, password, tipo } = req.body;
 
   if (!cpf || !password || !tipo) {
-    return res.status(400).json({ message: 'Preencha CPF, senha e tipo de usuário' });
+    return res.status(400).json({ message: 'Preencha CPF, senha e tipo de usuário.' });
   }
 
   try {
-    const users = await findUserByCpf(cpf);
-
-    if (users.length > 0) {
-      return res.status(400).json({ message: 'Usuário já registrado com este CPF' });
+    const existing = await findUserByCpf(cpf);
+    if (existing.length > 0) {
+      return res.status(400).json({ message: 'Usuário já registrado com este CPF.' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     await createUser({ cpf, password: hashedPassword, tipo });
 
-    res.status(201).json({ message: 'Usuário registrado com sucesso!' });
-  } catch (err) {
-    console.error("Erro no registro:", err);
-    res.status(500).json({ message: 'Erro ao registrar usuário', error: err.message });
+    return res.status(201).json({ message: 'Usuário registrado com sucesso!' });
+  } catch (error) {
+    console.error('Erro no registro:', error);
+    return res.status(500).json({ message: 'Erro ao registrar usuário.', error: error.message });
   }
 };
 
+// Login de usuário
 const login = async (req, res) => {
   const { cpf, password } = req.body;
 
   if (!cpf || !password) {
-    return res.status(400).json({ message: 'Preencha CPF e senha' });
+    return res.status(400).json({ message: 'Preencha CPF e senha.' });
   }
 
   try {
     const users = await findUserByCpf(cpf);
-
     if (users.length === 0) {
-      return res.status(400).json({ message: 'Usuário não encontrado' });
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
     }
 
     const user = users[0];
-    const match = await bcrypt.compare(password, user.password);
+    const passwordMatch = await bcrypt.compare(password, user.password);
 
-    if (!match) {
-      return res.status(400).json({ message: 'Senha incorreta' });
+    if (!passwordMatch) {
+      return res.status(401).json({ message: 'Senha incorreta.' });
     }
 
-    // Aqui você pode gerar token ou sessão, se quiser
-    res.status(200).json({ message: 'Login realizado com sucesso!', tipo: user.tipo });
-  } catch (err) {
-    console.error("Erro no login:", err);
-    res.status(500).json({ message: 'Erro no servidor', error: err.message });
+    // Se desejar gerar JWT, coloque aqui.
+    return res.status(200).json({
+      message: 'Login realizado com sucesso!',
+      userId: user.id,
+      tipo: user.tipo
+    });
+  } catch (error) {
+    console.error('Erro no login:', error);
+    return res.status(500).json({ message: 'Erro no servidor.', error: error.message });
   }
 };
 
+// Logout simples (sessão)
 const logout = (req, res) => {
   if (req.session) {
     req.session.destroy(() => {
-      res.status(200).json({ message: 'Logout realizado com sucesso!' });
+      return res.status(200).json({ message: 'Logout realizado com sucesso!' });
     });
   } else {
-    res.status(200).json({ message: 'Logout realizado com sucesso!' });
+    return res.status(200).json({ message: 'Logout realizado com sucesso!' });
   }
 };
 
