@@ -21,13 +21,13 @@ exports.sendMessage = async (req, res) => {
         model: "moonshotai/Kimi-K2-Instruct",
         messages: [
           { role: "user", content: message },
-          console.log("Status da resposta:", response.status);
+          console.log("status da resposta:", response.status);
 
         ],
       }),
     });
 
-    const text = await response.text(); // pega como texto cru
+   const text = await response.text();
 console.log("Texto cru da API Hugging Face:", text);
 
 let data;
@@ -37,6 +37,7 @@ try {
   console.error("Erro ao fazer parse do JSON:", parseError);
   return res.status(500).json({ message: "Resposta inválida da API (JSON inválido)" });
 }
+
 
 
     const reply = data?.choices?.[0]?.message?.content;
