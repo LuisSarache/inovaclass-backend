@@ -4,7 +4,7 @@ const ChatMessage = require('../models/chatmessageModel');
 
 const client = new OpenAI({
   baseURL: "https://router.huggingface.co/v1",
-  apiKey: process.env.HF_TOKEN,  // ajuste a variável de ambiente conforme seu .env
+  apiKey: process.env.OPENAI_API_KEY,  // ajuste a variável de ambiente conforme seu .env
 });
 
 exports.sendMessage = async (req, res) => {
