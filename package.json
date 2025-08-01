@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "db:update": "node syncDb.js",
+    "start:prod": "npm run db:update && npm run start"
   },
   "keywords": [
     "node",

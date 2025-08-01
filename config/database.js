@@ -9,7 +9,7 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
       require: true,
       rejectUnauthorized: false // importante para conexões com SSL (Render exige isso)
     }
-  },
+  },  
   logging: false,
 });
  
