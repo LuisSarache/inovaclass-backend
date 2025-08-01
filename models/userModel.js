@@ -30,13 +30,24 @@ const User = sequelize.define('User', {
 });
 
 // 🔄 Apenas retorna as Promises, sem usar callback
-const createUser = ({ cpf, password, tipo }) => {
-  return User.create({ cpf, password, tipo });
+const createUser = async ({ cpf, password, tipo }) => {
+  try {
+    const user = await User.create({ cpf, password, tipo });
+    return user;
+  } catch (error) {
+    throw error;
+  }
 };
 
-const findUserByCpf = (cpf) => {
-  return User.findAll({ where: { cpf } });
+const findUserByCpf = async (cpf) => {
+  try {
+    const users = await User.findAll({ where: { cpf } });
+    return users;
+  } catch (error) {
+    throw error;
+  }
 };
+
 
 module.exports = {
   User,
