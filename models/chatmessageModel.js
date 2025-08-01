@@ -19,14 +19,18 @@ const ChatMessage = sequelize.define('ChatMessage', {
     type: DataTypes.TEXT,
     allowNull: false,
   },
+  resposta: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
   data_envio: {
     type: DataTypes.DATE,
     allowNull: false,
-    defaultValue: Sequelize.NOW
+    defaultValue: Sequelize.NOW,
   },
 }, {
   tableName: 'chat_messages',
   timestamps: false,
 });
 
-module.exports = ChatMessage;
+module.exports = { ChatMessage };

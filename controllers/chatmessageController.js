@@ -1,6 +1,6 @@
 require('dotenv').config();
 const { OpenAI } = require('openai');
-const ChatMessage = require('../models/chatmessageModel');
+const { ChatMessage } = require('../models/chatmessageModel'); // Corrigido: desestruturando corretamente
 
 if (!process.env.HF_API_TOKEN) {
   throw new Error("Variável HF_API_TOKEN não está definida. Verifique seu .env.");
@@ -31,7 +31,12 @@ exports.sendMessage = async (req, res) => {
       return res.status(500).json({ message: 'Resposta inválida da API de chat.' });
     }
 
-    await ChatMessage.create({ userId, message, reply });
+    await ChatMessage.create({
+      remetente_id: userId || 1, // fallback para ID 1 se não houver sessão
+      destinatario_id: 0, // ID fixo do "bot"
+      conteudo: message,
+      resposta: reply, // Adicione esse campo ao seu model!
+    });
 
     return res.json({ reply });
   } catch (error) {
