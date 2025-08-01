@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const ChatMessage = sequelize.define('ChatMessage', {
@@ -7,25 +7,27 @@ const ChatMessage = sequelize.define('ChatMessage', {
     autoIncrement: true,
     primaryKey: true,
   },
-  userId: {
+  remetente_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  message: {
+  destinatario_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  conteudo: {
     type: DataTypes.TEXT,
     allowNull: false,
   },
-  reply: {
-    type: DataTypes.TEXT,
-    allowNull: true,
-  },
-  createdAt: {
+  data_envio: {
     type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
+    allowNull: false,
   },
 }, {
   tableName: 'chat_messages',
-  timestamps: false, // usamos createdAt manualmente, pode mudar se quiser
+  timestamps: false,
 });
 
-module.exports = ChatMessage;
+ChatMessage.sync();
+
+module.exports = { ChatMessage };
