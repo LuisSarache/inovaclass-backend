@@ -32,10 +32,17 @@ exports.sendMessage = async (req, res) => {
     );
 
     // Extrai a resposta do modelo
-    const reply = response.data.choices?.[0]?.message?.content;
+    let reply = response.data.choices?.[0]?.message?.content;
 
     if (!reply) {
       return res.status(500).json({ message: 'Resposta inválida da API de chat.' });
+    }
+
+    // Remove a parte <think> ... </think> se existir
+    const thinkCloseTag = '</think>';
+    const index = reply.indexOf(thinkCloseTag);
+    if (index !== -1) {
+      reply = reply.substring(index + thinkCloseTag.length).trim();
     }
 
     // Salva no banco
