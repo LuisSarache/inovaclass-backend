@@ -1,44 +1,37 @@
-// controllers/chatmessageController.js
-
-const fetch = require('node-fetch');
+require('dotenv').config();
+const { OpenAI } = require('openai');
 const ChatMessage = require('../models/chatmessageModel');
+
+const client = new OpenAI({
+  baseURL: "https://router.huggingface.co/v1",
+  apiKey: process.env.HF_TOKEN,  // ajuste a variável de ambiente conforme seu .env
+});
 
 exports.sendMessage = async (req, res) => {
   try {
     const { message } = req.body;
-    const userId = req.session ? req.session.userId : null; // cuidado caso não tenha sessão
+    const userId = req.session ? req.session.userId : null; // cuidado se não tiver sessão
 
     if (!message) {
       return res.status(400).json({ message: 'Mensagem é obrigatória.' });
     }
 
-    // Faz a chamada pra API externa
-    const response = await fetch("https://router.huggingface.co/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.HF_API_TOKEN}`,  // ajuste sua variável de ambiente
-      },
-      body: JSON.stringify({
-        model: "moonshotai/Kimi-K2-Instruct",
-        messages: [{ role: "user", content: message }],
-      }),
+    // Faz a chamada para o modelo via SDK OpenAI configurado para Hugging Face
+    const chatCompletion = await client.chat.completions.create({
+      model: "zai-org/GLM-4.5:novita",
+      messages: [
+        { role: "user", content: message },
+      ],
     });
 
-    if (!response.ok) {
-      throw new Error(`Erro da API externa: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json();
-
-    // Ajuste aqui para extrair a resposta de acordo com o formato da API
-    const reply = data.generated_text || (Array.isArray(data) && data[0]?.generated_text);
+    // Extrai a resposta
+    const reply = chatCompletion.choices[0]?.message?.content;
 
     if (!reply) {
       return res.status(500).json({ message: 'Resposta inválida da API de chat.' });
     }
 
-    // Salva no banco, se usar banco
+    // Salva a mensagem no banco, se estiver usando banco
     await ChatMessage.create({
       userId,
       message,
