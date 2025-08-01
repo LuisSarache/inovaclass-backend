@@ -27,17 +27,32 @@ const User = sequelize.define('User', {
 }, {
   tableName: 'users',
   timestamps: false,
-
-createUser: async (cpf, tipo, password, callback) => {
-  try {
-    const user = await User.create({ cpf, tipo, password });
-    callback(null, user);
-  } catch (error) {
-    callback(error);
-  }
-},
-
-
 });
 
+// Sincroniza a tabela no banco (cuidado em produção)
 User.sync();
+
+// ✅ Função para encontrar usuário por CPF
+const findUserByCpf = async (cpf, callback) => {
+  try {
+    const user = await User.findOne({ where: { cpf } });
+    callback(null, user ? [user] : []);
+  } catch (err) {
+    callback(err);
+  }
+};
+
+// ✅ Função para criar usuário
+const createUser = async (userData, callback) => {
+  try {
+    const user = await User.create(userData);
+    callback(null, user);
+  } catch (err) {
+    callback(err);
+  }
+};
+
+module.exports = {
+  findUserByCpf,
+  createUser,
+};
