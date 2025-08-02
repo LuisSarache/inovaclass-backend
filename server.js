@@ -4,6 +4,11 @@ const sequelize = require('./config/database');
 require('dotenv').config();
 const session = require('express-session');
 
+
+
+
+const chatRoutes = require('./routes/chat');
+const questionRoutes = require('./routes/questions');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 
@@ -28,6 +33,8 @@ app.use(session({
 */
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/questions', questionRoutes);
 
 // Middleware para capturar erros e logar no console
 app.use((err, req, res, next) => {
