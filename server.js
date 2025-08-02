@@ -15,7 +15,7 @@ const userRoutes = require('./routes/users');
 const app = express();
 
 app.use(cors({
-  origin: 'http://localhost:5173', // seu frontend
+  origin: 'https://inova-class-front-end.vercel.app', // seu frontend
   credentials: true
 }));
 
