@@ -1,7 +1,7 @@
 // routes/questions.js
 const express = require('express');
 const router = express.Router();
-const Question = require('../models/Question');
+const Question = require('../models/question');
 
 router.post('/', async (req, res) => {
   const { texto } = req.body;
