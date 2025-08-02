@@ -4,7 +4,11 @@ const sequelize = require('./config/database');
 require('dotenv').config();
 const session = require('express-session');
 
+// no backend (Node.js):
+require('dotenv').config();
+const { InferenceClient } = require("@huggingface/inference");
 
+const client = new InferenceClient(process.env.HF_TOKEN);
 
 
 const chatRoutes = require('./routes/chat');
