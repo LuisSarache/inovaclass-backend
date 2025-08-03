@@ -5,7 +5,7 @@ require("dotenv").config();
 const router = express.Router();
 const client = new InferenceClient(process.env.HF_TOKEN);
 
-router.post("/ia", async (req, res) => {
+router.post("/", async (req, res) => {
   const mensagem = req.body.mensagem;
 
   try {
