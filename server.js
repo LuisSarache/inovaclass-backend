@@ -21,11 +21,20 @@ const userRoutes = require('./routes/users');
 
 const app = express();
 
+const allowedOrigins = [
+  "https://inova-class-front-end.vercel.app", // Antigo
+  "https://inova-class-front-8xjrlzzm4-luissaraches-projects.vercel.app" ];// Novo domínio
+
 app.use(cors({
-  origin: 'https://inova-class-front-end.vercel.app', // seu frontend
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true
 }));
-
 app.use(express.json());
 /*
 app.use(session({
