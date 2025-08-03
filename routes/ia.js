@@ -15,7 +15,12 @@ router.post("/", async (req, res) => {
       messages: [{ role: "user", content: mensagem }],
     });
 
-    res.json(resposta.choices?.[0]?.message?.content ?? "Sem resposta");
+    let conteudo = resposta.choices?.[0]?.message?.content ?? "Sem resposta";
+
+    // Remove qualquer coisa entre <think> e </think>
+    conteudo = conteudo.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+
+    res.json(conteudo);
   } catch (error) {
     console.error("Erro na IA:", error);
     res.status(500).json({ erro: "Falha ao processar com a IA" });
