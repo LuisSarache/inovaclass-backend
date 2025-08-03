@@ -38,7 +38,7 @@ app.use(session({
   },
 }));
 */
-app.use("/api", iaRoutes);
+app.use('/api/ia', iaRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/chat', chatRoutes);
