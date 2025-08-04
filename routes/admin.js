@@ -2,9 +2,8 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-// Ajuste o caminho conforme seu projeto:
-// Caso tenha um arquivo index.js dentro de models que exporta tudo:
-// const { Admin, Professor, Aluno, Turma } = require("../models");
+// Ajuste o caminho para importar os models corretamente
+// Supondo que você tenha um arquivo ../models/index.js que exporta todos
 const { Admin, Professor, Aluno, Turma } = require("../models/admin");
 
 const router = express.Router();
@@ -15,8 +14,11 @@ const autenticarAdmin = (req, res, next) => {
   if (!authHeader)
     return res.status(401).json({ error: "Token não fornecido" });
 
-  const token = authHeader.split(" ")[1];
-  if (!token) return res.status(401).json({ error: "Token mal formatado" });
+  const parts = authHeader.split(" ");
+  if (parts.length !== 2 || parts[0] !== "Bearer") {
+    return res.status(401).json({ error: "Token mal formatado" });
+  }
+  const token = parts[1];
 
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) return res.status(403).json({ error: "Token inválido" });
@@ -31,6 +33,12 @@ router.post("/login", async (req, res) => {
     const { email, senha } = req.body;
     if (!email || !senha)
       return res.status(400).json({ error: "Email e senha são obrigatórios" });
+
+    // Verifica se o model Admin está importado
+    if (!Admin) {
+      console.error("Model Admin não encontrado!");
+      return res.status(500).json({ error: "Erro interno no servidor" });
+    }
 
     const admin = await Admin.findOne({ where: { email } });
     if (!admin) return res.status(404).json({ error: "Admin não encontrado" });
@@ -86,7 +94,8 @@ router.post("/aluno", autenticarAdmin, async (req, res) => {
 router.post("/turma", autenticarAdmin, async (req, res) => {
   try {
     const { nome, descricao } = req.body;
-    if (!nome) return res.status(400).json({ error: "Nome da turma é obrigatório" });
+    if (!nome)
+      return res.status(400).json({ error: "Nome da turma é obrigatório" });
 
     const turma = await Turma.create({ nome, descricao });
     res.status(201).json(turma);
@@ -105,7 +114,9 @@ router.post("/turma/:id/professor", autenticarAdmin, async (req, res) => {
     const professor = await Professor.findByPk(req.body.professorId);
     if (!professor) return res.status(404).json({ error: "Professor não encontrado" });
 
+    // Aqui depende da relação no seu model — se for belongsToMany, addProfessor existe
     await turma.addProfessor(professor);
+
     res.json({ message: "Professor atribuído à turma com sucesso" });
   } catch (error) {
     console.error("Erro ao atribuir professor:", error);
