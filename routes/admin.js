@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 // Corrigindo importação: use o index.js que exporta todos os models
-const { Admin, Professor, Aluno, Turma } = require("../models");
+const { Admin, Professor, Aluno, Turma } = require("../models/admin");
 
 const router = express.Router();
 
