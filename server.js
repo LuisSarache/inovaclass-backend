@@ -15,11 +15,28 @@ const adminRoutes = require('./routes/admin');
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://inova-class-front-end.vercel.app",
+  "https://inova-class-front-8xjrlzzm4-luissaraches-projects.vercel.app"
+];
+
 app.use(cors({
-  origin: '*',
+  origin: function(origin, callback){
+    // Permite requests sem origem (curl, postman)
+    if(!origin) return callback(null, true);
+
+    if(allowedOrigins.indexOf(origin) !== -1){
+      callback(null, origin);  // aqui passa a origem exata, não '*'
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,  // importante para habilitar credenciais
   methods: ['GET','POST','PUT','DELETE','OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
 app.options('*', cors());
 
 
