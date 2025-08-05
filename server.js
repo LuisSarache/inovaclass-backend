@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { sequelize } = require('./models')
-const { sequelize } = require('./database')
+const { sequelize } = require('./models');  // IMPORTA sequelize só do index dos models
 
 require('dotenv').config();
 const { InferenceClient } = require('@huggingface/inference');
