@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');  // importa a instância direto
+const { sequelize } = require('../config/database'); // Corrigidoo
 
 const Message = sequelize.define('Message', {
   autor: { type: DataTypes.STRING, allowNull: false },
