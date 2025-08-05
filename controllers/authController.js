@@ -28,10 +28,10 @@ const register = async (req, res) => {
 
 // Login de usuário
 const login = async (req, res) => {
-  const { cpf, password } = req.body;
+  const { cpf } = req.body;
 
   if (!cpf) {
-    return res.status(400).json({ message: 'Preencha CPF corretamente' });
+    return res.status(400).json({ message: 'Preencha CPF.' });
   }
 
   try {
@@ -40,17 +40,8 @@ const login = async (req, res) => {
       return res.status(404).json({ message: 'Usuário não encontrado.' });
     }
 
-
-    // Gera token JWT
-    const token = jwt.sign(
-      { id: user.id, tipo: user.tipo },
-      process.env.JWT_SECRET,
-      { expiresIn: '8h' }
-    );
-
     return res.status(200).json({
       message: 'Login realizado com sucesso!',
-      token,
       userId: user.id,
       tipo: user.tipo
     });
