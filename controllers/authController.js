@@ -30,8 +30,8 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   const { cpf, password } = req.body;
 
-  if (!cpf || !password) {
-    return res.status(400).json({ message: 'Preencha CPF e senha.' });
+  if (!cpf) {
+    return res.status(400).json({ message: 'Preencha CPF corretamente' });
   }
 
   try {
@@ -40,10 +40,6 @@ const login = async (req, res) => {
       return res.status(404).json({ message: 'Usuário não encontrado.' });
     }
 
-    const senhaCorreta = await bcrypt.compare(password, user.password);
-    if (!senhaCorreta) {
-      return res.status(401).json({ message: 'Senha incorreta.' });
-    }
 
     // Gera token JWT
     const token = jwt.sign(
