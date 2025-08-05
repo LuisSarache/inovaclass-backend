@@ -1,4 +1,3 @@
-// models/message.js
 module.exports = (sequelize, DataTypes) => {
   const Message = sequelize.define('Message', {
     autor: {
@@ -15,7 +14,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     timestamps: true,
-    updatedAt: false
+    updatedAt: false,
+    tableName: 'messages'
   });
 
   return Message;
