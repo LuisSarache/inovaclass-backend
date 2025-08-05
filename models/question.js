@@ -1,16 +1,18 @@
-// models/Question.js
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/database'); 
+const sequelize = require('../config/database'); // importa a instância correta
 
 const Question = sequelize.define('Question', {
-  texto: {
+  pergunta: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  resposta: {
     type: DataTypes.TEXT,
-    allowNull: false,
-  },
-  respondida: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
-  },
-}, { timestamps: true });
+    allowNull: false
+  }
+}, {
+  tableName: 'questions',
+  timestamps: true
+});
 
 module.exports = Question;
