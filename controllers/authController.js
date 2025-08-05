@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const { createUser, findUserByCpf } = require('../models/userModel');
+const jwt = require('jsonwebtoken');
 
 // Registro de usuário
 const register = async (req, res) => {
@@ -11,7 +12,7 @@ const register = async (req, res) => {
 
   try {
     const existing = await findUserByCpf(cpf);
-    if (existing.length > 0) {
+    if (existing) {
       return res.status(400).json({ message: 'Usuário já registrado com este CPF.' });
     }
 
@@ -29,22 +30,31 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   const { cpf, password } = req.body;
 
-  if (!cpf) {
-    return res.status(400).json({ message: 'Preencha CPF.' });
+  if (!cpf || !password) {
+    return res.status(400).json({ message: 'Preencha CPF e senha.' });
   }
 
   try {
-    const users = await findUserByCpf(cpf);
-    if (users.length === 0) {
+    const user = await findUserByCpf(cpf);
+    if (!user) {
       return res.status(404).json({ message: 'Usuário não encontrado.' });
     }
 
-    const user = users[0];
-    
+    const senhaCorreta = await bcrypt.compare(password, user.password);
+    if (!senhaCorreta) {
+      return res.status(401).json({ message: 'Senha incorreta.' });
+    }
 
-    // Se desejar gerar JWT, coloque aqui.
+    // Gera token JWT
+    const token = jwt.sign(
+      { id: user.id, tipo: user.tipo },
+      process.env.JWT_SECRET,
+      { expiresIn: '8h' }
+    );
+
     return res.status(200).json({
       message: 'Login realizado com sucesso!',
+      token,
       userId: user.id,
       tipo: user.tipo
     });
