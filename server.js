@@ -1,11 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const { sequelize } = require('./models');  // IMPORTA sequelize só do index dos models
-
+const sequelize = require('./config/database');
 require('dotenv').config();
-const { InferenceClient } = require('@huggingface/inference');
-
-const client = new InferenceClient(process.env.HF_TOKEN);
 
 const iaRoutes = require('./routes/ia');
 const chatRoutes = require('./routes/chat');
@@ -22,22 +18,16 @@ const allowedOrigins = [
   "https://inova-class-front-8xjrlzzm4-luissaraches-projects.vercel.app"
 ];
 
-// Middleware CORS com tratamento de erro específico
 app.use(cors({
-  origin: function(origin, callback){
-    if(!origin) return callback(null, true); // permite curl/postman sem origin
-    if(allowedOrigins.includes(origin)){
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
       return callback(null, origin);
     } else {
       return callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
-
-app.options('*', cors());
 
 app.use(express.json());
 
@@ -49,35 +39,22 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Middleware para tratar erros de CORS separadamente
+// Middleware de erro CORS
 app.use((err, req, res, next) => {
   if (err.message === 'Not allowed by CORS') {
-    console.error('Erro CORS:', err.message);
     return res.status(403).json({ message: 'CORS error: origem não permitida' });
   }
   next(err);
 });
 
-// Middleware global de erro para capturar e exibir stack trace
-app.use((err, req, res, next) => {
-  console.error('Erro interno:', err);
-  res.status(500).json({
-    message: 'Erro interno no servidor',
-    error: err.message,
-    stack: err.stack, // útil para debug no dev
-  });
-});
-
+// Conexão com banco
 sequelize.authenticate()
   .then(() => {
-    console.log('Conectado ao banco SQL via Sequelize');
-    return sequelize.sync({ alter: true });
+    console.log('✅ Conectado ao banco!');
+    return sequelize.sync({ alter: true }); // sincroniza models
   })
   .then(() => {
     const PORT = process.env.PORT || 5000;
-    console.log(`Tabelas sincronizadas com o banco`);
-    app.listen(PORT, () => {
-      console.log(`Servidor rodando na porta ${PORT}`);
-    });
+    app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
   })
   .catch(err => console.error('Erro ao conectar no banco:', err));

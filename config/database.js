@@ -8,11 +8,10 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialectOptions: {
     ssl: {
       require: true,
-      rejectUnauthorized: false,
+      rejectUnauthorized: false, // necessário para Render
     },
   },
   logging: false,
 });
 
-// Exporta como objeto para permitir desestruturação
-module.exports = { sequelize };
+module.exports = sequelize; // Exporta instância única

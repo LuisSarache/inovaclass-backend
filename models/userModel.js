@@ -1,5 +1,6 @@
+// models/userModel.js
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); // importa a instância correta
+const sequelize = require('../config/database');
 
 const User = sequelize.define('User', {
   id: {
@@ -29,12 +30,13 @@ const User = sequelize.define('User', {
   timestamps: false,
 });
 
+// Funções utilitárias
 const createUser = async ({ cpf, password, tipo }) => {
   return await User.create({ cpf, password, tipo });
 };
 
 const findUserByCpf = async (cpf) => {
-  return await User.findAll({ where: { cpf } });
+  return await User.findOne({ where: { cpf } });
 };
 
 module.exports = {
