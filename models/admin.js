@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         validate: {
           notEmpty: { msg: "O nome não pode ser vazio" },
-          len: { args: [3, 100], msg: "O nome deve ter entre 3 e 100 caracteres" }
+          len: { args: [3, 100], msg: "O nome deve ter entre 3 e 100 caracteres" },
         },
       },
       email: {
@@ -30,20 +30,20 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       tableName: "admins",
-      timestamps: true, // createdAt, updatedAt
-      underscored: true, // para usar nomes snake_case no banco
+      timestamps: true,
+      underscored: true,
       defaultScope: {
-        attributes: { exclude: ["senha"] }, // nunca retorna senha por padrão
+        attributes: { exclude: ["senha"] }, // não retorna senha por padrão
       },
       scopes: {
-        withPassword: { attributes: {} }, // escopo para incluir senha quando necessário
+        withPassword: { attributes: {} }, // inclui senha quando quiser
       },
     }
   );
 
-  // Associações futuras (se houver):
   Admin.associate = (models) => {
-    // exemplo: Admin.hasMany(models.Professor, { foreignKey: "admin_id" });
+    // Exemplo de associação futura:
+    // Admin.hasMany(models.Professor, { foreignKey: "admin_id" });
   };
 
   return Admin;

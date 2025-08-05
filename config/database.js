@@ -1,3 +1,4 @@
+// config/database.js
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
@@ -13,4 +14,5 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
   logging: false,
 });
 
-module.exports = sequelize;  // exporta diretamente a instância
+// Exporta como objeto para permitir desestruturação
+module.exports = { sequelize };

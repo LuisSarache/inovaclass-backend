@@ -7,10 +7,10 @@ const Professor = require("./professor")(sequelize, DataTypes);
 const Aluno = require("./aluno")(sequelize, DataTypes);
 const Turma = require("./turma")(sequelize, DataTypes);
 
-// Define associações, se existirem
-if (Professor.associate) Professor.associate({ Admin, Aluno, Turma });
-if (Aluno.associate) Aluno.associate({ Admin, Professor, Turma });
-if (Turma.associate) Turma.associate({ Admin, Professor, Aluno });
+// Define associações, se existirem e forem funções
+if (typeof Professor.associate === "function") Professor.associate({ Admin, Aluno, Turma });
+if (typeof Aluno.associate === "function") Aluno.associate({ Admin, Professor, Turma });
+if (typeof Turma.associate === "function") Turma.associate({ Admin, Professor, Aluno });
 
 // Exporta para o resto da aplicação
 module.exports = {
