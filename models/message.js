@@ -1,6 +1,5 @@
-// models/Message.js
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const sequelize = require('../config/database');  // importa a instância direto
 
 const Message = sequelize.define('Message', {
   autor: { type: DataTypes.STRING, allowNull: false },
