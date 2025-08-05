@@ -1,4 +1,5 @@
-// src/models/aluno.js
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/database'); 
 
 module.exports = (sequelize, DataTypes) => {
   const Aluno = sequelize.define(
