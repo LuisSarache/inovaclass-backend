@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); // agora sem chaves
+const sequelize = require('../config/database'); // importa a instância correta
 
 const User = sequelize.define('User', {
   id: {
