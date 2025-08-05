@@ -1,6 +1,5 @@
 const { DataTypes } = require("sequelize");
-require("dotenv").config();
-const { sequelize } = require("../config/database");
+const { sequelize } = require("../config/database"); 
 
 // Inicializa a conexão com Sequelize usando variáveis do .env
 const sequelize = new Sequelize(
